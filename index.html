@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>公考学习打卡工作台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#f0f4f8;--card:#fff;--text:#1e293b;--text2:#64748b;--text3:#94a3b8;
+  --border:#e2e8f0;--radius:14px;--primary:#2563eb;--primary-light:#dbeafe;
+  --red:#ef4444;--red-light:#fee2e2;--green:#10b981;--green-light:#d1fae5;
+  --orange:#f59e0b;--orange-light:#fef3c7;--shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg:0 4px 12px rgba(0,0,0,.08);
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.6;
+  padding-bottom:env(safe-area-inset-bottom);-webkit-font-smoothing:antialiased;
+}
+.container{max-width:1100px;margin:0 auto;padding:16px;}
+@media(min-width:768px){.container{padding:24px;}}
+
+/* Header */
+.header{
+  background:linear-gradient(135deg,#1e40af,#2563eb);
+  color:#fff;padding:20px 16px;border-radius:0 0 20px 20px;
+  box-shadow:0 4px 16px rgba(37,99,235,.2);
+}
+@media(min-width:768px){.header{padding:28px 32px;border-radius:0 0 24px 24px;}}
+.header-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.header-title{display:flex;align-items:center;gap:10px;}
+.header-title svg{width:28px;height:28px;flex-shrink:0;}
+.header-title h1{font-size:20px;font-weight:700;}
+@media(min-width:768px){.header-title h1{font-size:24px;}}
+.header-date{font-size:13px;opacity:.85;margin-top:4px;}
+.header-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;
+  border:none;cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.btn svg{width:16px;height:16px;}
+.btn-light{background:rgba(255,255,255,.15);color:#fff;}
+.btn-light:hover{background:rgba(255,255,255,.25);}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:hover{background:#1d4ed8;}
+.btn-outline{background:#fff;color:var(--text);border:1px solid var(--border);}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary);}
+.btn-danger{background:var(--red-light);color:var(--red);}
+.btn-danger:hover{background:#fecaca;}
+.btn-sm{padding:6px 10px;font-size:12px;}
+
+/* Backup reminder banner */
+.backup-banner{
+  background:var(--orange-light);border:1px solid #fde68a;
+  border-radius:10px;padding:10px 14px;margin-top:12px;
+  display:flex;align-items:center;gap:8px;font-size:13px;color:#92400e;
+}
+.backup-banner svg{width:18px;height:18px;flex-shrink:0;}
+
+/* Section */
+.section{margin-top:20px;}
+.section-title{
+  display:flex;align-items:center;gap:8px;
+  font-size:16px;font-weight:700;color:var(--text);margin-bottom:12px;
+}
+.section-title svg{width:20px;height:20px;color:var(--primary);}
+
+/* Today check-in section */
+.today-section{
+  background:var(--card);border-radius:var(--radius);
+  padding:16px;box-shadow:var(--shadow);
+}
+.today-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px;
+}
+@media(min-width:640px){.today-grid{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:768px){.today-grid{grid-template-columns:repeat(6,1fr);}}
+.today-card{
+  border:1.5px solid var(--border);border-radius:10px;
+  padding:10px 8px;text-align:center;transition:all .15s;
+}
+.today-card.checked{border-color:var(--green);background:var(--green-light);}
+.today-card.unchecked{border-color:var(--orange);background:var(--orange-light);}
+.today-card-name{font-size:12px;color:var(--text2);margin-bottom:4px;}
+.today-card-count{font-size:18px;font-weight:700;}
+.today-card.checked .today-card-count{color:var(--green);}
+.today-card.unchecked .today-card-count{color:var(--orange);}
+.today-card-label{font-size:10px;color:var(--text3);margin-top:2px;}
+
+/* Module cards grid */
+.modules-grid{
+  display:grid;grid-template-columns:1fr;gap:16px;
+}
+@media(min-width:768px){.modules-grid{grid-template-columns:repeat(2,1fr);}}
+
+.module-card{
+  background:var(--card);border-radius:var(--radius);
+  padding:16px;box-shadow:var(--shadow);border-top:3px solid var(--primary);
+}
+.module-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;flex-wrap:wrap;gap:8px;
+}
+.module-header-left{display:flex;align-items:center;gap:8px;}
+.module-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.module-icon svg{width:18px;height:18px;}
+.module-name{font-size:15px;font-weight:700;}
+.module-stats{display:flex;gap:12px;font-size:12px;color:var(--text2);}
+.module-stats strong{color:var(--text);}
+.module-input-row{
+  display:flex;gap:8px;align-items:center;margin-bottom:12px;
+}
+.module-input-row input[type="date"]{
+  padding:8px 10px;border:1px solid var(--border);border-radius:8px;
+  font-size:13px;color:var(--text);width:130px;
+}
+.module-input-row input[type="number"]{
+  flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;
+  font-size:16px;color:var(--text);min-width:0;
+  -moz-appearance:textfield;
+}
+.module-input-row input[type="number"]::-webkit-inner-spin-button,
+.module-input-row input[type="number"]::-webkit-outer-spin-button{
+  -webkit-appearance:none;margin:0;
+}
+.module-input-row input:focus{outline:none;border-color:var(--primary);}
+.checkin-btn{
+  padding:10px 16px;border-radius:8px;font-size:14px;font-weight:600;
+  border:none;cursor:pointer;white-space:nowrap;transition:all .15s;
+}
+.checkin-btn svg{width:16px;height:16px;}
+.cumulative-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:8px;font-size:12px;
+}
+.cumulative-bar .label{color:var(--text2);}
+.cumulative-bar .value{font-weight:700;}
+.progress-bar{
+  height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;margin-bottom:10px;
+}
+.progress-bar-fill{height:100%;border-radius:3px;transition:width .4s ease;}
+.chart-container{margin-top:4px;}
+.chart-container svg{display:block;width:100%;height:auto;}
+
+/* Dashboard */
+.dashboard{
+  background:var(--card);border-radius:var(--radius);
+  padding:20px 16px;box-shadow:var(--shadow);
+}
+.dashboard-grid{
+  display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px;
+}
+@media(min-width:640px){.dashboard-grid{grid-template-columns:repeat(2,1fr);}}
+@media(min-width:768px){.dashboard-grid{grid-template-columns:repeat(4,1fr);}}
+.gauge-card{
+  border:1.5px solid var(--border);border-radius:12px;
+  padding:12px 8px;text-align:center;
+}
+.gauge-card.overall{
+  border-color:var(--primary);background:linear-gradient(135deg,#eff6ff,#fff);
+}
+@media(min-width:768px){
+  .gauge-card.overall{grid-column:span 2;grid-row:span 1;}
+}
+.gauge-card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.gauge-card-sub{font-size:11px;color:var(--text3);margin-top:4px;}
+
+/* Modal */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.4);
+  display:none;align-items:center;justify-content:center;z-index:999;
+  padding:20px;
+}
+.modal-overlay.active{display:flex;}
+.modal{
+  background:#fff;border-radius:16px;padding:24px;
+  max-width:400px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.15);
+}
+.modal h3{font-size:18px;margin-bottom:12px;}
+.modal p{font-size:14px;color:var(--text2);margin-bottom:20px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:rgba(30,41,59,.95);color:#fff;padding:10px 20px;
+  border-radius:10px;font-size:14px;z-index:1000;
+  opacity:0;transition:opacity .3s,bottom .3s;pointer-events:none;
+}
+.toast.show{opacity:1;bottom:32px;}
+
+/* Footer */
+.footer{text-align:center;padding:20px 16px;font-size:12px;color:var(--text3);}
+
+/* Settings modal */
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid #f1f5f9;}
+.setting-row:last-child{border-bottom:none;}
+.setting-row-label{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;flex:1;min-width:0;}
+.setting-row-label .module-icon{width:26px;height:26px;border-radius:6px;}
+.setting-row-label .module-icon svg{width:14px;height:14px;}
+.setting-row-input{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.setting-row-input input{width:70px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:16px;text-align:center;-moz-appearance:textfield;}
+.setting-row-input input:focus{outline:none;border-color:var(--primary);}
+.setting-row-input input::-webkit-inner-spin-button,.setting-row-input input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+.setting-row-input span{font-size:12px;color:var(--text3);white-space:nowrap;}
+
+/* Settings modal data actions */
+.settings-divider{height:1px;background:#f1f5f9;margin:16px 0;}
+.data-actions{display:flex;gap:8px;}
+.data-actions .btn{flex:1;justify-content:center;font-size:12px;padding:8px 6px;}
+.data-actions .btn svg{width:14px;height:14px;flex-shrink:0;}
+
+/* Mobile responsive for module cards */
+@media(max-width:480px){
+  .module-card{padding:12px;}
+  .module-input-row{flex-wrap:wrap;}
+  .module-input-row input[type="date"]{width:100%;margin-bottom:6px;}
+  .module-input-row input[type="number"]{flex:1;min-width:120px;}
+  .module-name{font-size:14px;}
+  .module-stats{font-size:11px;}
+  .cumulative-bar{font-size:11px;flex-wrap:wrap;gap:4px;}
+  .header-actions .btn{padding:6px 10px;font-size:12px;}
+  .data-actions .btn{font-size:11px;padding:8px 4px;}
+  .data-actions .btn svg{width:13px;height:13px;}
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="container" style="padding:0;">
+    <div class="header-top">
+      <div>
+        <div class="header-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          <h1>公考学习打卡工作台</h1>
+        </div>
+        <div class="header-date" id="header-date"></div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-light" onclick="showSettingsModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+          设置
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Backup reminder -->
+  <div class="backup-banner" id="backup-banner" style="display:none;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01M5 19h14a2 2 0 001.84-2.75L13.74 4a2 2 0 00-3.48 0L3.16 16.25A2 2 0 005 19z"/></svg>
+    <span id="backup-banner-text"></span>
+  </div>
+
+  <!-- Today check-in section -->
+  <div class="section">
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+      今日打卡
+    </div>
+    <div class="today-section">
+      <div class="today-grid" id="today-grid"></div>
+    </div>
+  </div>
+
+  <!-- Module cards -->
+  <div class="section">
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z"/></svg>
+      各模块打卡详情
+    </div>
+    <div class="modules-grid" id="modules-grid"></div>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="section">
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      本周完成率仪表盘
+    </div>
+    <div class="dashboard">
+      <div class="dashboard-grid" id="dashboard-grid"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    数据存储在浏览器本地，刷新关闭不丢失 &middot; 建议定期导出备份
+  </div>
+</div>
+
+<!-- Clear modal -->
+<div class="modal-overlay" id="clear-modal">
+  <div class="modal">
+    <h3>确认清空全部数据</h3>
+    <p>此操作将删除所有打卡记录，且不可恢复。建议先导出备份。确定要继续吗？</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeClearModal()">取消</button>
+      <button class="btn btn-danger" onclick="clearAllData()">确认清空</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings modal -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal" style="max-width:450px;max-height:85vh;overflow-y:auto;">
+    <h3>设置</h3>
+    <p style="font-size:13px;margin-bottom:16px;">设置各模块周目标，留空则保持当前目标不变。</p>
+    <div id="settings-fields"></div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn btn-outline" onclick="closeSettingsModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveSettingsFromModal()">保存</button>
+    </div>
+    <div class="settings-divider"></div>
+    <div class="data-actions">
+      <button class="btn btn-outline" onclick="closeSettingsModal();exportData()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+        导出备份
+      </button>
+      <button class="btn btn-outline" onclick="closeSettingsModal();document.getElementById('import-file').click()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3m0 0l4 4m-4-4L8 7M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+        导入恢复
+      </button>
+      <button class="btn btn-danger" onclick="closeSettingsModal();showClearModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
+        清空数据
+      </button>
+    </div>
+  </div>
+</div>
+<input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ========== Constants ========== */
+var STORAGE_KEY = 'wb_gongkao_';
+var DATA_KEY = STORAGE_KEY + 'data';
+var SETTINGS_KEY = STORAGE_KEY + 'settings';
+
+var MODULES = {
+  changshi:  { name: '常识积累',     short: '常识', weeklyTarget: 30, color: '#3b82f6', colorLight: '#dbeafe' },
+  yanyu:     { name: '言语理解与表达', short: '言语', weeklyTarget: 60, color: '#10b981', colorLight: '#d1fae5' },
+  panduan:   { name: '判断推理',     short: '判断', weeklyTarget: 80, color: '#f59e0b', colorLight: '#fef3c7' },
+  shuliang:  { name: '数量关系',     short: '数量', weeklyTarget: 40, color: '#ef4444', colorLight: '#fee2e2' },
+  ziliao:    { name: '资料分析',     short: '资料', weeklyTarget: 40, color: '#8b5cf6', colorLight: '#ede9fe' },
+  shenlun:   { name: '申论',         short: '申论', weeklyTarget: 4,  color: '#ec4899', colorLight: '#fce7f3' }
+};
+var MODULE_KEYS = Object.keys(MODULES);
+
+var ICONS = {
+  changshi: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>',
+  yanyu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>',
+  panduan: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>',
+  shuliang: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>',
+  ziliao: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>',
+  shenlun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>'
+};
+
+var data = {};
+
+/* ========== Date Utilities ========== */
+function pad2(n){ return String(n).padStart(2,'0'); }
+function formatDate(d){
+  return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate());
+}
+function getTodayStr(){ return formatDate(new Date()); }
+function getWeekStart(date){
+  var d = new Date(date);
+  d.setHours(0,0,0,0);
+  var day = d.getDay();
+  var diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  return d;
+}
+function getWeekDates(date){
+  var start = getWeekStart(date);
+  var dates = [];
+  for(var i=0;i<7;i++){
+    var d = new Date(start);
+    d.setDate(start.getDate()+i);
+    dates.push(formatDate(d));
+  }
+  return dates;
+}
+function getWeekDayShort(dateStr){
+  var d = new Date(dateStr);
+  return ['日','一','二','三','四','五','六'][d.getDay()];
+}
+
+/* ========== Data Functions ========== */
+function loadData(){
+  try{
+    var raw = localStorage.getItem(DATA_KEY);
+    if(raw){ data = JSON.parse(raw); }
+  }catch(e){ data = {}; }
+  MODULE_KEYS.forEach(function(k){
+    if(!data[k] || !Array.isArray(data[k])) data[k] = [];
+  });
+}
+function saveData(){
+  localStorage.setItem(DATA_KEY, JSON.stringify(data));
+}
+function loadSettings(){
+  try{
+    var raw = localStorage.getItem(SETTINGS_KEY);
+    if(raw){
+      var saved = JSON.parse(raw);
+      MODULE_KEYS.forEach(function(k){
+        if(saved[k] != null && !isNaN(saved[k]) && saved[k] > 0){
+          MODULES[k].weeklyTarget = saved[k];
+        }
+      });
+    }
+  }catch(e){}
+}
+function getModuleWeekRecords(key){
+  var weekDates = getWeekDates(new Date());
+  return (data[key]||[]).filter(function(r){ return weekDates.indexOf(r.date) >= 0; });
+}
+function getModuleWeekTotal(key){
+  return getModuleWeekRecords(key).reduce(function(s,r){ return s + r.count; },0);
+}
+function getModuleAllTotal(key){
+  return (data[key]||[]).reduce(function(s,r){ return s + r.count; },0);
+}
+function getRecordByDate(key,dateStr){
+  return (data[key]||[]).find(function(r){ return r.date === dateStr; });
+}
+function checkIn(key,count,dateStr){
+  if(!data[key]) data[key] = [];
+  var existing = data[key].find(function(r){ return r.date === dateStr; });
+  if(existing){
+    existing.count = count;
+  }else{
+    data[key].push({date:dateStr, count:count});
+    data[key].sort(function(a,b){ return a.date < b.date ? -1 : 1; });
+  }
+  saveData();
+  renderAll();
+}
+function getTotalRecordCount(){
+  return MODULE_KEYS.reduce(function(s,k){ return s + (data[k]||[]).length; },0);
+}
+function getTotalWeekTarget(){
+  return MODULE_KEYS.reduce(function(s,k){ return s + MODULES[k].weeklyTarget; },0);
+}
+function getTotalWeekAnswers(){
+  return MODULE_KEYS.reduce(function(s,k){ return s + getModuleWeekTotal(k); },0);
+}
+
+/* ========== Sample Data ========== */
+function loadSampleData(){
+  var weekDates = getWeekDates(new Date());
+  // Only fill up to yesterday (leave today for user to check in)
+  var today = getTodayStr();
+  var samples = {
+    changshi: [
+      {date:weekDates[0], count:5},
+      {date:weekDates[1], count:5},
+      {date:weekDates[2], count:5}
+    ],
+    yanyu: [
+      {date:weekDates[0], count:10},
+      {date:weekDates[1], count:12},
+      {date:weekDates[2], count:8}
+    ],
+    panduan: [
+      {date:weekDates[0], count:15},
+      {date:weekDates[1], count:20}
+    ],
+    shuliang: [
+      {date:weekDates[0], count:5}
+    ],
+    ziliao: [],
+    shenlun: [
+      {date:weekDates[2], count:1}
+    ]
+  };
+  MODULE_KEYS.forEach(function(k){
+    data[k] = samples[k].slice();
+  });
+  saveData();
+}
+
+/* ========== Rendering: Today Section ========== */
+function renderTodaySection(){
+  var today = getTodayStr();
+  var html = '';
+  MODULE_KEYS.forEach(function(k){
+    var m = MODULES[k];
+    var rec = getRecordByDate(k, today);
+    var checked = !!rec;
+    var cls = checked ? 'checked' : 'unchecked';
+    var countDisplay = checked ? rec.count + '道' : '未打卡';
+    var label = checked ? '今日已打卡' : '点击下方输入';
+    html += '<div class="today-card ' + cls + '">';
+    html += '<div class="today-card-name">' + m.short + '</div>';
+    html += '<div class="today-card-count">' + countDisplay + '</div>';
+    html += '<div class="today-card-label">' + label + '</div>';
+    html += '</div>';
+  });
+  document.getElementById('today-grid').innerHTML = html;
+}
+
+/* ========== Rendering: Module Cards ========== */
+function renderModuleCards(){
+  var today = getTodayStr();
+  var html = '';
+  MODULE_KEYS.forEach(function(k){
+    var m = MODULES[k];
+    var weekTotal = getModuleWeekTotal(k);
+    var allTotal = getModuleAllTotal(k);
+    var weekRate = Math.round(weekTotal / m.weeklyTarget * 100);
+    var todayRec = getRecordByDate(k, today);
+    var barColor = weekRate >= 100 ? '#10b981' : (weekRate >= 60 ? m.color : '#f59e0b');
+    if(weekRate < 30) barColor = '#ef4444';
+
+    html += '<div class="module-card" style="border-top-color:' + m.color + ';">';
+
+    // Header
+    html += '<div class="module-header">';
+    html += '<div class="module-header-left">';
+    html += '<div class="module-icon" style="background:' + m.colorLight + ';color:' + m.color + ';">' + (ICONS[k]||'') + '</div>';
+    html += '<div class="module-name">' + m.name + '</div>';
+    html += '</div>';
+    html += '<div class="module-stats">';
+    html += '<span>历史累计 <strong style="color:' + m.color + ';">' + allTotal + '</strong>道</span>';
+    html += '</div>';
+    html += '</div>';
+
+    // Input row
+    html += '<div class="module-input-row">';
+    html += '<input type="date" id="date-' + k + '" value="' + today + '" max="' + today + '">';
+    html += '<input type="number" id="count-' + k + '" placeholder="今日答题数" min="0" inputmode="numeric" value="' + (todayRec ? todayRec.count : '') + '">';
+    html += '<button class="btn btn-primary btn-sm checkin-btn" style="background:' + m.color + ';" onclick="handleCheckIn(\'' + k + '\')">';
+    html += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>打卡';
+    html += '</button>';
+    html += '</div>';
+
+    // Cumulative bar
+    html += '<div class="cumulative-bar">';
+    html += '<span class="label">周目标 <strong>' + m.weeklyTarget + '</strong>道 · 本周 <strong>' + weekTotal + '</strong>道</span>';
+    html += '<span class="value" style="color:' + barColor + ';">' + weekRate + '%</span>';
+    html += '</div>';
+    html += '<div class="progress-bar"><div class="progress-bar-fill" style="width:' + Math.min(100,weekRate) + '%;background:' + barColor + ';"></div></div>';
+
+    // Chart
+    html += '<div class="chart-container" id="chart-' + k + '"></div>';
+
+    html += '</div>';
+  });
+  document.getElementById('modules-grid').innerHTML = html;
+
+  // Render charts
+  MODULE_KEYS.forEach(function(k){
+    document.getElementById('chart-' + k).innerHTML = renderLineChart(k);
+  });
+}
+
+function handleCheckIn(key){
+  var dateInput = document.getElementById('date-' + key);
+  var countInput = document.getElementById('count-' + key);
+  var dateStr = dateInput.value;
+  var count = parseInt(countInput.value, 10);
+
+  if(!dateStr){
+    showToast('请选择日期');
+    return;
+  }
+  if(isNaN(count) || count < 0){
+    showToast('请输入有效的答题数量');
+    return;
+  }
+  checkIn(key, count, dateStr);
+  showToast(MODULES[key].name + ' 打卡成功: ' + count + '道');
+}
+
+/* ========== Rendering: Line Chart ========== */
+function renderLineChart(key){
+  var m = MODULES[key];
+  var weekDates = getWeekDates(new Date());
+  var records = getModuleWeekRecords(key);
+  var recordMap = {};
+  records.forEach(function(r){ recordMap[r.date] = r.count; });
+
+  var values = weekDates.map(function(d){ return recordMap[d] || 0; });
+  var dayNames = ['一','二','三','四','五','六','日'];
+
+  var dataMax = Math.max.apply(null, values);
+  var avgNeeded = m.weeklyTarget / 7;
+  var yMax = Math.max(dataMax, Math.ceil(avgNeeded), 5);
+  yMax = Math.ceil(yMax * 1.3);
+
+  var chartW = 340, chartH = 150;
+  var padL = 32, padR = 12, padT = 16, padB = 22;
+  var plotW = chartW - padL - padR;
+  var plotH = chartH - padT - padB;
+  var xStep = plotW / 6;
+
+  var points = values.map(function(v,i){
+    return {
+      x: padL + i * xStep,
+      y: padT + plotH - (v / yMax) * plotH,
+      val: v,
+      date: weekDates[i],
+      day: dayNames[i]
+    };
+  });
+
+  var today = getTodayStr();
+  var svg = '<svg viewBox="0 0 ' + chartW + ' ' + chartH + '" preserveAspectRatio="xMidYMid meet">';
+
+  // Y-axis grid lines
+  for(var i=0;i<=4;i++){
+    var gy = padT + (plotH/4)*i;
+    svg += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (chartW-padR) + '" y2="' + gy + '" stroke="#f1f5f9" stroke-width="1"/>';
+    var labelVal = Math.round(yMax - (yMax/4)*i);
+    svg += '<text x="' + (padL-4) + '" y="' + (gy+3) + '" text-anchor="end" font-size="9" fill="#cbd5e1">' + labelVal + '</text>';
+  }
+
+  // Average reference line
+  var avgY = padT + plotH - (avgNeeded / yMax) * plotH;
+  svg += '<line x1="' + padL + '" y1="' + avgY + '" x2="' + (chartW-padR) + '" y2="' + avgY + '" stroke="' + m.color + '" stroke-width="1" stroke-dasharray="4,3" opacity="0.4"/>';
+  svg += '<text x="' + (chartW-padR) + '" y="' + (avgY-3) + '" text-anchor="end" font-size="8" fill="' + m.color + '" opacity="0.6">日均目标 ' + (Math.round(avgNeeded*10)/10) + '</text>';
+
+  // Area fill
+  if(values.some(function(v){return v>0;})){
+    var areaPath = 'M ' + points[0].x + ' ' + (padT+plotH) + ' ';
+    points.forEach(function(p){ areaPath += 'L ' + p.x + ' ' + p.y + ' '; });
+    areaPath += 'L ' + points[6].x + ' ' + (padT+plotH) + ' Z';
+    svg += '<path d="' + areaPath + '" fill="' + m.color + '" opacity="0.08"/>';
+  }
+
+  // Line
+  var hasData = values.some(function(v){return v>0;});
+  if(hasData){
+    var linePath = '';
+    points.forEach(function(p,i){
+      // Skip zero values for line continuity, but still plot points
+      if(i===0){
+        linePath += 'M ' + p.x + ' ' + p.y;
+      }else{
+        linePath += ' L ' + p.x + ' ' + p.y;
+      }
+    });
+    svg += '<path d="' + linePath + '" fill="none" stroke="' + m.color + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>';
+  }
+
+  // Points
+  points.forEach(function(p){
+    var isToday = (p.date === today);
+    if(p.val > 0){
+      svg += '<circle cx="' + p.x + '" cy="' + p.y + '" r="' + (isToday?5:3.5) + '" fill="#fff" stroke="' + m.color + '" stroke-width="2"/>';
+      svg += '<text x="' + p.x + '" y="' + (p.y-9) + '" text-anchor="middle" font-size="10" fill="' + m.color + '" font-weight="700">' + p.val + '</text>';
+    }else{
+      svg += '<circle cx="' + p.x + '" cy="' + p.y + '" r="2" fill="#e2e8f0"/>';
+    }
+  });
+
+  // X-axis labels
+  points.forEach(function(p){
+    var isToday = (p.date === today);
+    var fillColor = isToday ? m.color : '#94a3b8';
+    var fontWeight = isToday ? '700' : '400';
+    svg += '<text x="' + p.x + '" y="' + (chartH-6) + '" text-anchor="middle" font-size="10" fill="' + fillColor + '" font-weight="' + fontWeight + '">' + p.day + '</text>';
+  });
+
+  svg += '</svg>';
+  return svg;
+}
+
+/* ========== Rendering: Dashboard Gauges ========== */
+function renderDashboard(){
+  var html = '';
+
+  // Overall gauge
+  var totalWeek = getTotalWeekAnswers();
+  var totalTarget = getTotalWeekTarget();
+  var overallRate = Math.round(totalWeek / totalTarget * 100);
+  html += '<div class="gauge-card overall">';
+  html += '<div class="gauge-card-title">整体完成率</div>';
+  html += renderGauge(overallRate);
+  html += '<div class="gauge-card-sub">' + totalWeek + ' / ' + totalTarget + ' 道</div>';
+  html += '</div>';
+
+  // Module gauges
+  MODULE_KEYS.forEach(function(k){
+    var m = MODULES[k];
+    var weekTotal = getModuleWeekTotal(k);
+    var rate = Math.round(weekTotal / m.weeklyTarget * 100);
+    html += '<div class="gauge-card" style="border-color:' + m.colorLight + ';">';
+    html += '<div class="gauge-card-title" style="color:' + m.color + ';">' + m.short + '</div>';
+    html += renderGauge(rate, m.color);
+    html += '<div class="gauge-card-sub">' + weekTotal + ' / ' + m.weeklyTarget + ' 道</div>';
+    html += '</div>';
+  });
+
+  document.getElementById('dashboard-grid').innerHTML = html;
+}
+
+function renderGauge(percentage, customColor){
+  var p = Math.min(100, Math.max(0, percentage));
+  var cx = 100, cy = 95, r = 72;
+  var w = 200, h = 120;
+
+  var angle = 180 - (p / 100) * 180;
+  var rad = angle * Math.PI / 180;
+  var endX = cx + r * Math.cos(rad);
+  var endY = cy - r * Math.sin(rad);
+  var largeArc = 0;
+
+  var color;
+  if(p >= 100) color = '#059669';
+  else if(p >= 60) color = '#10b981';
+  else if(p >= 30) color = '#f59e0b';
+  else color = '#ef4444';
+
+  var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="xMidYMid meet" style="max-width:180px;margin:0 auto;">';
+
+  // Background track
+  svg += '<path d="M ' + (cx-r) + ' ' + cy + ' A ' + r + ' ' + r + ' 0 0 1 ' + (cx+r) + ' ' + cy + '" fill="none" stroke="#e5e7eb" stroke-width="9" stroke-linecap="round"/>';
+
+  // Progress arc
+  if(p > 0){
+    svg += '<path d="M ' + (cx-r) + ' ' + cy + ' A ' + r + ' ' + r + ' 0 ' + largeArc + ' 1 ' + endX + ' ' + endY + '" fill="none" stroke="' + color + '" stroke-width="9" stroke-linecap="round"/>';
+  }
+
+  // Percentage text
+  svg += '<text x="' + cx + '" y="' + (cy-2) + '" text-anchor="middle" font-size="24" font-weight="700" fill="#1e293b">' + Math.round(p) + '%</text>';
+  svg += '<text x="' + cx + '" y="' + (cy+16) + '" text-anchor="middle" font-size="9" fill="#94a3b8">完成率</text>';
+
+  svg += '</svg>';
+  return svg;
+}
+
+/* ========== Backup Banner ========== */
+function renderBackupBanner(){
+  var total = getTotalRecordCount();
+  var banner = document.getElementById('backup-banner');
+  var text = document.getElementById('backup-banner-text');
+  if(total >= 30){
+    banner.style.display = 'flex';
+    text.textContent = '数据已积累 ' + total + ' 条，建议导出备份以防丢失。';
+  }else{
+    banner.style.display = 'none';
+  }
+}
+
+/* ========== Header Date ========== */
+function renderHeaderDate(){
+  var now = new Date();
+  var days = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+  var weekDates = getWeekDates(now);
+  var weekStart = weekDates[0].substring(5).replace('-','月') + '日';
+  var weekEnd = weekDates[6].substring(5).replace('-','月') + '日';
+  var dateStr = formatDate(now) + ' ' + days[now.getDay()];
+  dateStr += '  |  本周: ' + weekStart + ' - ' + weekEnd;
+  document.getElementById('header-date').textContent = dateStr;
+}
+
+/* ========== Render All ========== */
+function renderAll(){
+  renderHeaderDate();
+  renderTodaySection();
+  renderModuleCards();
+  renderDashboard();
+  renderBackupBanner();
+}
+
+/* ========== Export / Import ========== */
+function exportData(){
+  var settingsObj = {};
+  MODULE_KEYS.forEach(function(k){ settingsObj[k] = MODULES[k].weeklyTarget; });
+  var exportObj = {
+    version: 1,
+    exportDate: getTodayStr(),
+    data: data,
+    settings: settingsObj
+  };
+  var json = JSON.stringify(exportObj, null, 2);
+  var blob = new Blob([json], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '公考打卡备份_' + getTodayStr() + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('备份文件已导出');
+}
+
+function importData(event){
+  var file = event.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var obj = JSON.parse(e.target.result);
+      var importData = obj.data || obj;
+      // Validate structure
+      MODULE_KEYS.forEach(function(k){
+        if(!importData[k] || !Array.isArray(importData[k])){
+          importData[k] = [];
+        }
+      });
+      data = importData;
+      // Restore settings if present
+      if(obj.settings){
+        MODULE_KEYS.forEach(function(k){
+          if(obj.settings[k] != null && !isNaN(obj.settings[k]) && obj.settings[k] > 0){
+            MODULES[k].weeklyTarget = obj.settings[k];
+          }
+        });
+        var settingsObj = {};
+        MODULE_KEYS.forEach(function(k){ settingsObj[k] = MODULES[k].weeklyTarget; });
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(settingsObj));
+      }
+      saveData();
+      renderAll();
+      showToast('数据导入成功');
+    }catch(err){
+      showToast('导入失败: 文件格式错误');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+/* ========== Clear Data ========== */
+function showClearModal(){
+  document.getElementById('clear-modal').classList.add('active');
+}
+function closeClearModal(){
+  document.getElementById('clear-modal').classList.remove('active');
+}
+function clearAllData(){
+  MODULE_KEYS.forEach(function(k){ data[k] = []; });
+  saveData();
+  renderAll();
+  closeClearModal();
+  showToast('全部数据已清空');
+}
+
+/* ========== Settings Modal ========== */
+function showSettingsModal(){
+  var html = '';
+  MODULE_KEYS.forEach(function(k){
+    var m = MODULES[k];
+    html += '<div class="setting-row">';
+    html += '<div class="setting-row-label" style="color:' + m.color + ';">';
+    html += '<div class="module-icon" style="background:' + m.colorLight + ';color:' + m.color + ';">' + (ICONS[k]||'') + '</div>';
+    html += m.name;
+    html += '</div>';
+    html += '<div class="setting-row-input">';
+    html += '<input type="number" id="setting-' + k + '" placeholder="' + m.weeklyTarget + '" min="1" inputmode="numeric">';
+    html += '<span>道/周</span>';
+    html += '</div>';
+    html += '</div>';
+  });
+  document.getElementById('settings-fields').innerHTML = html;
+  document.getElementById('settings-modal').classList.add('active');
+}
+function closeSettingsModal(){
+  document.getElementById('settings-modal').classList.remove('active');
+}
+function saveSettingsFromModal(){
+  var changed = false;
+  MODULE_KEYS.forEach(function(k){
+    var input = document.getElementById('setting-' + k);
+    if(input && input.value !== ''){
+      var val = parseInt(input.value, 10);
+      if(!isNaN(val) && val > 0){
+        MODULES[k].weeklyTarget = val;
+        changed = true;
+      }
+    }
+  });
+  if(changed){
+    var settings = {};
+    MODULE_KEYS.forEach(function(k){ settings[k] = MODULES[k].weeklyTarget; });
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    renderAll();
+    showToast('周目标已更新');
+  }
+  closeSettingsModal();
+}
+
+/* ========== Toast ========== */
+var toastTimer = null;
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2500);
+}
+
+/* ========== Init ========== */
+(function init(){
+  loadData();
+  loadSettings();
+  // Check if first time (no data at all)
+  var hasData = MODULE_KEYS.some(function(k){ return data[k] && data[k].length > 0; });
+  if(!hasData){
+    loadSampleData();
+  }
+  renderAll();
+})();
+</script>
+</body>
+</html>
